@@ -6,6 +6,9 @@ import facultyRouter from "./routes/faculty";
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
 import adminRouter from "./routes/admin";
+import coordinator from "./routes/coordinator";
+import coordinatorRouter from "./routes/coordinator";
+import examRouter from "./routes/exams";
 
 require('dotenv').config();
 
@@ -19,34 +22,12 @@ app.use(cors());
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: true}));
 
-
-
-const swaggerOptions = {
-    swaggerDefinition: {
-        openapi: '3.0.0',
-        info: {
-            title: 'Scrinix API docs',
-            version: '1.0.0',
-            description: 'API documentation using Swagger',
-        },
-        servers: [
-            {
-                url: 'http://localhost:5000',
-            },
-        ],
-    },
-    apis: ['./src/routes/*/*.ts'],
-};
-const swaggerSpec = swaggerJSDoc(swaggerOptions);
-// Serve Swagger UI
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
 /**** Routes ****/
-app.use("/admin", adminRouter);
-app.use("/faculty", facultyRouter);
+app.use('/admin', adminRouter);
+app.use('/faculty', facultyRouter);
 
-app.use("/coordinator", coodinatorRouter);
-
+app.use('/coordinator', coordinatorRouter);
+app.use('/exams', examRouter);
 
 app.listen(PORT, async () => {
     try {

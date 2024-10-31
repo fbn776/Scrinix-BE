@@ -4,6 +4,8 @@ CREATE TABLE IF NOT EXISTS College
     Name TEXT NOT NULL
 );
 
+INSERT INTO College VALUES ('KTE', 'Rajiv Gandhi Institute of Technology');
+
 CREATE TABLE IF NOT EXISTS Admins
 (
     ID    VARCHAR(10) PRIMARY KEY,
@@ -40,9 +42,6 @@ CREATE TABLE IF NOT EXISTS Exam
     ClgID               VARCHAR(10),
     title               VARCHAR(100) NOT NULL,
 
-    scheme              INT          NOT NULL,
-    semester            INT          NOT NULL,
-
     start_date          DATE         NOT NULL,
     end_date            DATE         NOT NULL,
 
@@ -56,6 +55,22 @@ CREATE TABLE IF NOT EXISTS Exam
     FOREIGN KEY (seating_arrangement) REFERENCES Files (file_id) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (time_table) REFERENCES Files (file_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
+
+/**
+  The table for which semesters the exam is conducting for
+ */
+CREATE TABLE ExamFor
+(
+    ClgID    VARCHAR(10) NOT NULL,
+    E_ID     INT NOT NULL,
+    scheme   INT NOT NULL,
+    semester INT NOT NULL,
+
+    PRIMARY KEY (ClgID, E_ID, scheme, semester),
+
+    FOREIGN KEY (E_ID, ClgID) REFERENCES Exam(E_ID, ClgID)
+);
+
 
 CREATE TABLE IF NOT EXISTS Course
 (

@@ -1,4 +1,5 @@
 import {Router} from "express";
+import collegeAdminController from "../../controllers/admin/c_root";
 
 const clgAdminRouter = Router();
 
