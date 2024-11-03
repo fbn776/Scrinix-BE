@@ -10,7 +10,8 @@ const getAllExamQuery = `SELECT E.*,
                          FROM Exam E
                                   JOIN
                               ExamFor EF ON E.E_ID = EF.E_ID AND E.ClgID = EF.ClgID
-                         GROUP BY E.E_ID, E.ClgID;
+                         GROUP BY E.E_ID, E.ClgID, E.created_time
+                         ORDER BY E.created_time DESC;
 `;
 
 examRouter.get('/all', async (req, res) => {
@@ -31,5 +32,24 @@ examRouter.get('/all', async (req, res) => {
         })
     }
 });
+
+examRouter.get('/has-exam', async (req, res) => {
+        const {e_id, clg_id} = req.body;
+        Logger.info('Has exam check with exam id =', e_id, clg_id);
+        try {
+            const result = await pgPool.query('SELECT e_id FROM exam WHERE e_id = $1 AND clgid = $2', [e_id, clg_id]);
+
+            return res.status(HTTP_status.OK).json({
+                hasExam: (result.rowCount || 0) > 0
+            });
+        } catch (e: any) {
+            Logger.error(`Check for has exam with e_id = ${e_id} and clg_id = ${clg_id} failed; ERROR:`, e);
+
+            return res.status(HTTP_status.BAD_REQUEST).json({
+                message: `ERROR: ${e}`
+            });
+        }
+    }
+)
 
 export default examRouter;

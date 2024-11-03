@@ -37,6 +37,10 @@ GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO dbms_user;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL PRIVILEGES ON TABLES TO dbms_user;
 ```
 
+```postgresql
+GRANT USAGE, SELECT ON SEQUENCE exam_e_id_seq TO dbms_user;
+```
+
 
 Once done create the .env file and populate the following fields:
 

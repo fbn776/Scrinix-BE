@@ -34,13 +34,15 @@ coordinatorRouter.post('/exam', async (req, res) => {
         await pgPool.query('BEGIN');
 
         const result = await pgPool.query(
-            'INSERT INTO Exam (ClgID, title, start_date, end_date) VALUES ($1, $2, $3, $4) RETURNING E_ID, ClgID',
+            'INSERT INTO Exam (ClgID, title, start_date, end_date) VALUES ($1, $2, $3, $4) RETURNING E_ID, ClgID, created_time',
             [body.clgID, body.title, body.start_date, body.end_date]
         );
-        console.log(result.rows[0])
 
         const e_id: number = result.rows[0].e_id,
-            clg_id: string = result.rows[0].clgid;
+            clg_id: string = result.rows[0].clgid,
+            created_time: string = result.rows[0].created_time;
+
+        Logger.info('Exam added to DB with ID:', e_id, 'and clg_id:', clg_id, ' at:', created_time);
 
         for (let semester of body.sem_scheme) {
             let splits = semester.split('-');
@@ -60,7 +62,8 @@ coordinatorRouter.post('/exam', async (req, res) => {
                 title: body.title,
                 start_date: body.start_date,
                 end_date: body.end_date,
-                sem_scheme: body.sem_scheme
+                sem_scheme: body.sem_scheme,
+                created_time
             }
         });
     } catch (e: any) {

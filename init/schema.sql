@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS Exam
     seating_arrangement INT,
     time_table          INT,
 
+    created_time         TIMESTAMP      DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY (E_ID, ClgID),
     FOREIGN KEY (ClgID) REFERENCES College (ID),
