@@ -2,13 +2,12 @@ import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 import pgPool from "./config/db";
-import facultyRouter from "./routes/faculty";
 import swaggerUi from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
 import adminRouter from "./routes/admin";
-import coordinator from "./routes/coordinator";
 import coordinatorRouter from "./routes/coordinator";
 import examRouter from "./routes/exams";
+import faculty from "./routes/faculty";
 
 require('dotenv').config();
 
@@ -24,10 +23,11 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 /**** Routes ****/
 app.use('/admin', adminRouter);
-app.use('/faculty', facultyRouter);
 
 app.use('/coordinator', coordinatorRouter);
 app.use('/exams', examRouter);
+
+app.use('/faculty', faculty);
 
 app.listen(PORT, async () => {
     try {

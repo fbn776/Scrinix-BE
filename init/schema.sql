@@ -4,7 +4,8 @@ CREATE TABLE IF NOT EXISTS College
     Name TEXT NOT NULL
 );
 
-INSERT INTO College VALUES ('KTE', 'Rajiv Gandhi Institute of Technology');
+INSERT INTO College
+VALUES ('KTE', 'Rajiv Gandhi Institute of Technology');
 
 CREATE TABLE IF NOT EXISTS Admins
 (
@@ -33,7 +34,7 @@ CREATE TABLE IF NOT EXISTS Files
     file_id   SERIAL PRIMARY KEY,
     file_data BYTEA,
     file_name TEXT,
-    file_date DATE DEFAULT CURRENT_DATE
+    created_at timestamp DEFAULT current_timestamp
 );
 
 CREATE TABLE IF NOT EXISTS Exam
@@ -48,7 +49,7 @@ CREATE TABLE IF NOT EXISTS Exam
     seating_arrangement INT,
     time_table          INT,
 
-    created_time         TIMESTAMP      DEFAULT CURRENT_TIMESTAMP,
+    created_time        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY (E_ID, ClgID),
     FOREIGN KEY (ClgID) REFERENCES College (ID),
@@ -63,13 +64,13 @@ CREATE TABLE IF NOT EXISTS Exam
 CREATE TABLE ExamFor
 (
     ClgID    VARCHAR(10) NOT NULL,
-    E_ID     INT NOT NULL,
-    scheme   INT NOT NULL,
-    semester INT NOT NULL,
+    E_ID     INT         NOT NULL,
+    scheme   INT         NOT NULL,
+    semester INT         NOT NULL,
 
     PRIMARY KEY (ClgID, E_ID, scheme, semester),
 
-    FOREIGN KEY (E_ID, ClgID) REFERENCES Exam(E_ID, ClgID)
+    FOREIGN KEY (E_ID, ClgID) REFERENCES Exam (E_ID, ClgID)
 );
 
 
@@ -77,8 +78,8 @@ CREATE TABLE IF NOT EXISTS Course
 (
     semester  INT,
     scheme    INT,
+    name      VARCHAR(100) NOT NULL,
     course_id varchar(10),
-    course    VARCHAR(100) NOT NULL,
     PRIMARY KEY (scheme, course_id)
 );
 
@@ -86,23 +87,24 @@ CREATE TYPE StatusTypes AS ENUM ('pending', 'success', 'scrutiny');
 
 CREATE TABLE IF NOT EXISTS QuestionPaper
 (
+    f_id           VARCHAR(10)                   NOT NULL,
+    e_id           INT                           NOT NULL,
+    clgID          varchar(10)                   NOT NULL,
+    course_id      varchar(10)                   NOT NULL,
+    scheme         INT                           NOT NULL,
 
     status         StatusTypes DEFAULT 'pending' NOT NULL,
-    created_date   DATE        DEFAULT CURRENT_DATE,
     due_date       DATE                          NOT NULL,
     submitted_date DATE,
 
-    scheme         INT                           NOT NULL,
-    course_id      varchar(10)                   NOT NULL,
-    examID         INT                           NOT NULL,
-    clgID          varchar(10)                   NOT NULL,
-
     file_id        INT,
+    created_date   timestamp   DEFAULT CURRENT_TIMESTAMP,
 
-    PRIMARY KEY (scheme, course_id, examID, clgID),
-    FOREIGN KEY (file_id) REFERENCES Files (file_id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (examID, clgID) REFERENCES Exam (E_ID, ClgID) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (course_id, scheme) REFERENCES Course (course_id, scheme) ON DELETE CASCADE ON UPDATE CASCADE
+    PRIMARY KEY (scheme, course_id, e_id, clgID),
+    FOREIGN KEY (f_id, clgID) REFERENCES Faculty (F_ID, ClgID) ON UPDATE CASCADE,
+    FOREIGN KEY (file_id) REFERENCES Files (file_id) ON UPDATE CASCADE,
+    FOREIGN KEY (e_id, clgID) REFERENCES Exam (E_ID, ClgID) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (course_id, scheme) REFERENCES Course (course_id, scheme) ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Teaches
