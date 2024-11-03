@@ -10,19 +10,19 @@ coordinatorRouter.post('/exam', async (req, res) => {
         clgID: string,
         title: string,
         sem_scheme: string[],
-        startDate: string,
-        endDate: string
+        start_date: string,
+        end_date: string
     } = req.body;
 
     console.log(body);
 
-    if (!body.clgID || !body.title || (body.sem_scheme || []).length === 0 || !body.startDate || !body.endDate) {
+    if (!body.clgID || !body.title || (body.sem_scheme || []).length === 0 || !body.start_date || !body.end_date) {
         return res.status(HTTP_status.BAD_REQUEST).json({
             message: `Missing item from body, it should be of the format {clgID, title, semesters, startDate, endDate}`
         })
     }
 
-    if (new Date(body.startDate) > new Date(body.endDate)) {
+    if (new Date(body.start_date) > new Date(body.end_date)) {
         return res.status(HTTP_status.BAD_REQUEST).json({
             message: 'Start date should be before end date'
         });
@@ -35,7 +35,7 @@ coordinatorRouter.post('/exam', async (req, res) => {
 
         const result = await pgPool.query(
             'INSERT INTO Exam (ClgID, title, start_date, end_date) VALUES ($1, $2, $3, $4) RETURNING E_ID, ClgID',
-            [body.clgID, body.title, body.startDate, body.endDate]
+            [body.clgID, body.title, body.start_date, body.end_date]
         );
         console.log(result.rows[0])
 
@@ -55,11 +55,11 @@ coordinatorRouter.post('/exam', async (req, res) => {
         return res.status(200).json({
             message: 'Exam added successfully',
             data: {
-                E_ID: e_id,
-                ClgID: clg_id,
+                e_id: e_id,
+                clgID: clg_id,
                 title: body.title,
-                startDate: body.startDate,
-                endDate: body.endDate,
+                start_date: body.start_date,
+                end_date: body.end_date,
                 sem_scheme: body.sem_scheme
             }
         });
