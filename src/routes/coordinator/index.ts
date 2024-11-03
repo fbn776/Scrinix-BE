@@ -9,14 +9,14 @@ coordinatorRouter.post('/exam', async (req, res) => {
     const body: {
         clgID: string,
         title: string,
-        semesters: string[],
+        sem_scheme: string[],
         startDate: string,
         endDate: string
     } = req.body;
 
     console.log(body);
 
-    if (!body.clgID || !body.title || (body.semesters || []).length === 0 || !body.startDate || !body.endDate) {
+    if (!body.clgID || !body.title || (body.sem_scheme || []).length === 0 || !body.startDate || !body.endDate) {
         return res.status(HTTP_status.BAD_REQUEST).json({
             message: `Missing item from body, it should be of the format {clgID, title, semesters, startDate, endDate}`
         })
@@ -42,7 +42,7 @@ coordinatorRouter.post('/exam', async (req, res) => {
         const e_id: number = result.rows[0].e_id,
             clg_id: string = result.rows[0].clgid;
 
-        for (let semester of body.semesters) {
+        for (let semester of body.sem_scheme) {
             let splits = semester.split('-');
             let sem = parseInt(splits[0].trim().substring(1));
             let scheme = parseInt(splits[1].trim());
@@ -60,7 +60,7 @@ coordinatorRouter.post('/exam', async (req, res) => {
                 title: body.title,
                 startDate: body.startDate,
                 endDate: body.endDate,
-                semesters: body.semesters
+                sem_scheme: body.sem_scheme
             }
         });
     } catch (e: any) {
