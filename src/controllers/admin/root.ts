@@ -14,19 +14,19 @@ const rootAdminController = {
     /** Create college entry */
     createCollege: async (req: Request, res: Response) => {
         const body: {
-            ID: string,
+            clgID: string,
             name: string
         } = req.body;
 
-        if (!body.ID || !body.name) {
+        if (!body.clgID || !body.name) {
             res.status(HTTP_status.BAD_REQUEST).send(
-                !body.ID ? 'ID is required' : !body.name ? 'name is required' :
+                !body.clgID ? 'ID is required' : !body.name ? 'name is required' :
                     'ID and name are required'
             );
             return;
         }
 
-        const result = await db_createCollege(body.ID, body.name);
+        const result = await db_createCollege(body.clgID, body.name);
 
         if (isSuccess(result)) {
             console.log(result.data);
@@ -39,16 +39,14 @@ const rootAdminController = {
 
     /** Delete college entry */
     deleteCollege: async (req: Request, res: Response) => {
-        const body: {
-            ID: string,
-        } = req.body;
+        const ID = req.params.id;
 
-        if (!body.ID) {
+        if (!ID) {
             res.status(HTTP_status.BAD_REQUEST).send('ID is required');
             return;
         }
 
-        const result = await db_deleteCollegeByID(body.ID);
+        const result = await db_deleteCollegeByID(ID);
 
         if (isSuccess(result)) {
             console.log(result.data);

@@ -14,8 +14,6 @@ coordinatorRouter.post('/exam', async (req, res) => {
         end_date: string
     } = req.body;
 
-    console.log(body);
-
     if (!body.clgID || !body.title || (body.sem_scheme || []).length === 0 || !body.start_date || !body.end_date) {
         return res.status(HTTP_status.BAD_REQUEST).json({
             message: `Missing item from body, it should be of the format {clgID, title, semesters, startDate, endDate}`

@@ -2,8 +2,6 @@ import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 import pgPool from "./config/db";
-// import swaggerUi from 'swagger-ui-express';
-// import swaggerJSDoc from 'swagger-jsdoc';
 import adminRouter from "./routes/admin";
 import coordinatorRouter from "./routes/coordinator";
 import examRouter from "./routes/exams";
@@ -18,7 +16,7 @@ if(!PORT)
 const app = express();
 app.use(cors());
 
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
 /**** Routes ****/
