@@ -6,7 +6,7 @@ const clgAdminRouter = Router();
 
 /**
  * TODO:
- * Only a college admin can create a faculty; that is both college ID should be same
+ * Only a college admin can create a staff; that is both college ID should be same
  */
 clgAdminRouter.post('/create-faculty', collegeAdminController.createFaculty);
 

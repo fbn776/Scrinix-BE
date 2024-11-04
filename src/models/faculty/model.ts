@@ -16,7 +16,7 @@ export default async function db_createFaculty(f_id: string, clgid: string, name
         return success(data.rows[0] as FacultyModel);
     } catch (e: any) {
         console.error(e);
-        return error(e.message || 'Error creating faculty');
+        return error(e.message || 'Error creating staff');
     }
 }
 
@@ -25,7 +25,7 @@ export async function db_deleteFacultyByID(f_id: string, clgid: string): ResultP
         await pgPool.query('DELETE FROM Faculty WHERE f_id = $1 AND clgid = $2', [f_id, clgid]);
         return success("Faculty deleted");
     } catch (e: any) {
-        return error(e.message || 'Error deleting faculty');
+        return error(e.message || 'Error deleting staff');
     }
 }
 
@@ -34,7 +34,7 @@ export async function db_getFacultyBy(f_id: string, clgid: string): ResultPromis
         const data = await pgPool.query('SELECT * FROM Faculty WHERE f_id = $1 AND clgid = $2', [f_id, clgid]);
         return success(data.rows[0] as FacultyModel);
     } catch (e: any) {
-        return error(e.message || 'Error getting faculty');
+        return error(e.message || 'Error getting staff');
     }
 }
 
@@ -43,7 +43,7 @@ export async function db_updateFaculty(f_id: string, clgid: string, name: string
         const data = await pgPool.query('UPDATE Faculty SET name = $1, email = $2, phone = $3 WHERE f_id = $4 AND clgid = $5 RETURNING *', [name, email, phone, f_id, clgid]);
         return success(data.rows[0] as FacultyModel);
     } catch (e: any) {
-        return error(e.message || 'Error updating faculty');
+        return error(e.message || 'Error updating staff');
     }
 }
 
@@ -52,6 +52,6 @@ export async function db_getAllFacultyByCollege(clgid: string, limit?: number, o
         const data = await pgPool.query('SELECT * FROM Faculty WHERE clgid = $1 LIMIT $2 OFFSET $3', [clgid, limit, offset]);
         return success(data.rows as FacultyModel[]);
     } catch (e: any) {
-        return error(e.message || 'Error getting all faculty');
+        return error(e.message || 'Error getting all staff');
     }
 }

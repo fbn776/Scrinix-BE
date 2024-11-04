@@ -2,12 +2,12 @@ import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 import pgPool from "./config/db";
-import swaggerUi from 'swagger-ui-express';
-import swaggerJSDoc from 'swagger-jsdoc';
+// import swaggerUi from 'swagger-ui-express';
+// import swaggerJSDoc from 'swagger-jsdoc';
 import adminRouter from "./routes/admin";
 import coordinatorRouter from "./routes/coordinator";
 import examRouter from "./routes/exams";
-import faculty from "./routes/faculty";
+import facultyRouter from "./routes/staff";
 
 require('dotenv').config();
 
@@ -27,7 +27,7 @@ app.use('/admin', adminRouter);
 app.use('/coordinator', coordinatorRouter);
 app.use('/exams', examRouter);
 
-app.use('/faculty', faculty);
+app.use('/staff', facultyRouter);
 
 app.listen(PORT, async () => {
     try {
