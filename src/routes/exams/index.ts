@@ -49,8 +49,7 @@ examRouter.post('/has-exam', async (req, res) => {
                 message: `ERROR: ${e}`
             });
         }
-    }
-)
+    })
 
 examRouter.get('/exam', async (req, res) => {
     const {e_id, clg_id} = req.query;

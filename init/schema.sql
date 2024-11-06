@@ -72,7 +72,6 @@ CREATE TABLE ExamFor
     FOREIGN KEY (E_ID, ClgID) REFERENCES Exam (E_ID, ClgID) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-
 CREATE TABLE IF NOT EXISTS Course
 (
     semester   INT,
@@ -88,7 +87,7 @@ CREATE TYPE StatusTypes AS ENUM ('pending', 'success', 'scrutiny');
 
 CREATE TABLE IF NOT EXISTS QuestionPaper
 (
-    f_id           VARCHAR(10)                   NOT NULL,
+    f_id           VARCHAR(10),
     e_id           INT                           NOT NULL,
     clgID          varchar(10)                   NOT NULL,
     course_id      varchar(10)                   NOT NULL,
@@ -102,6 +101,7 @@ CREATE TABLE IF NOT EXISTS QuestionPaper
     created_date   timestamp   DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY (scheme, course_id, e_id, clgID),
+
     FOREIGN KEY (f_id, clgID) REFERENCES Faculty (F_ID, ClgID) ON UPDATE CASCADE,
     FOREIGN KEY (file_id) REFERENCES Files (file_id) ON UPDATE CASCADE,
     FOREIGN KEY (e_id, clgID) REFERENCES Exam (E_ID, ClgID) ON DELETE CASCADE ON UPDATE CASCADE,
