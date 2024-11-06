@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS CollegeAdmins
     ClgID          VARCHAR(10)  NOT NULL,
     userName       VARCHAR(100) NOT NULL,
     hashedPassword VARCHAR(100) NOT NULL,
-    created_at      TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+    created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY (ClgID, userName),
     FOREIGN KEY (ClgID) REFERENCES College (ID) ON UPDATE CASCADE
@@ -75,10 +75,12 @@ CREATE TABLE ExamFor
 
 CREATE TABLE IF NOT EXISTS Course
 (
-    semester  INT,
-    scheme    INT,
-    name      VARCHAR(100) NOT NULL,
-    course_id varchar(10),
+    semester   INT,
+    scheme     INT,
+    name       VARCHAR(100) NOT NULL,
+    course_id  varchar(10),
+    created_at timestamp DEFAULT CURRENT_TIMESTAMP,
+
     PRIMARY KEY (scheme, course_id)
 );
 

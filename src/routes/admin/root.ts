@@ -121,4 +121,43 @@ rootAdminRouter.delete('/delete-admin/:clgID/:username', async (req, res) => {
    }
 });
 
+/*
+    semester  INT,
+    scheme    INT,
+    name      VARCHAR(100) NOT NULL,
+    course_id varchar(10),
+ */
+rootAdminRouter.post('/creat-course', async (req, res) => {
+    const {semester, scheme, name, course_id} = req.body;
+
+    if (!semester || !scheme || !name || !course_id) {
+        return res.status(HTTP_status.BAD_REQUEST).json({
+            message: 'semester, scheme, name and course_id are required fields'
+        });
+    }
+
+    try {
+        const result = await pgPool.query('INSERT INTO course VALUES ($1, $2, $3, $4) RETURNING *', [semester, scheme, name, course_id]);
+
+        return res.json({
+            message: 'Course created successfully',
+            data: result.rows[0]
+        });
+    } catch (e: any) {
+        console.error(e);
+        Logger.error('Error while creating course:', e);
+
+        if(e.code === '23505') {
+            return res.status(HTTP_status.CONFLICT).json({
+                message: 'Course already exists',
+                isDuplicate: true
+            });
+        }
+
+        return res.status(HTTP_status.INTERNAL_SERVER_ERROR).json({
+            message: 'An error happened'
+        });
+    }
+});
+
 export default rootAdminRouter;
