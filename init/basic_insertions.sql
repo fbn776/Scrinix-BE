@@ -1,11 +1,5 @@
--- Insert data;
-/*
-    semester  INT,
-    scheme    INT,
-    name      VARCHAR(100) NOT NULL,
-    course_id varchar(10),
-    PRIMARY KEY (scheme, course_id)
-*/
+INSERT INTO College
+VALUES ('KTE', 'Rajiv Gandhi Institute of Technology, Kottayam');
 
 INSERT INTO Course VALUES
                        (1, 2019, 'Linear Algebra And Calculus', 'MAT101'),

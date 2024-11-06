@@ -3,7 +3,6 @@ import collegeAdminController from "../../controllers/admin/c_root";
 
 const clgAdminRouter = Router();
 
-
 /**
  * TODO:
  * Only a college admin can create a staff; that is both college ID should be same

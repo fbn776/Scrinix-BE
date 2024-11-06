@@ -4,17 +4,16 @@ CREATE TABLE IF NOT EXISTS College
     Name TEXT NOT NULL
 );
 
-INSERT INTO College
-VALUES ('KTE', 'Rajiv Gandhi Institute of Technology');
 
-CREATE TABLE IF NOT EXISTS Admins
+CREATE TABLE IF NOT EXISTS CollegeAdmins
 (
-    ID    VARCHAR(10) PRIMARY KEY,
-    ClgID VARCHAR(10),
-    Name  VARCHAR(100) NOT NULL,
-    Email VARCHAR(100) NOT NULL,
-    Phone VARCHAR(10)  NOT NULL,
-    FOREIGN KEY (ClgID) REFERENCES College (ID) ON UPDATE CASCADE ON DELETE CASCADE
+    ClgID          VARCHAR(10)  NOT NULL,
+    userName       VARCHAR(100) NOT NULL,
+    hashedPassword VARCHAR(100) NOT NULL,
+    created_at      TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (ClgID, userName),
+    FOREIGN KEY (ClgID) REFERENCES College (ID) ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Faculty
@@ -26,14 +25,14 @@ CREATE TABLE IF NOT EXISTS Faculty
     Phone VARCHAR(10)  NOT NULL,
 
     PRIMARY KEY (F_ID, ClgID),
-    FOREIGN KEY (ClgID) REFERENCES College (ID) ON UPDATE CASCADE ON DELETE CASCADE
+    FOREIGN KEY (ClgID) REFERENCES College (ID) ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Files
 (
-    file_id   SERIAL PRIMARY KEY,
-    file_data BYTEA,
-    file_name TEXT,
+    file_id    SERIAL PRIMARY KEY,
+    file_data  BYTEA,
+    file_name  TEXT,
     created_at timestamp DEFAULT current_timestamp
 );
 
@@ -52,10 +51,10 @@ CREATE TABLE IF NOT EXISTS Exam
     created_time        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     PRIMARY KEY (E_ID, ClgID),
-    FOREIGN KEY (ClgID) REFERENCES College (ID),
 
-    FOREIGN KEY (seating_arrangement) REFERENCES Files (file_id) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (time_table) REFERENCES Files (file_id) ON DELETE CASCADE ON UPDATE CASCADE
+    FOREIGN KEY (ClgID) REFERENCES College (ID) ON UPDATE CASCADE,
+    FOREIGN KEY (seating_arrangement) REFERENCES Files (file_id) ON UPDATE CASCADE,
+    FOREIGN KEY (time_table) REFERENCES Files (file_id) ON UPDATE CASCADE
 );
 
 /**
@@ -70,7 +69,7 @@ CREATE TABLE ExamFor
 
     PRIMARY KEY (ClgID, E_ID, scheme, semester),
 
-    FOREIGN KEY (E_ID, ClgID) REFERENCES Exam (E_ID, ClgID)
+    FOREIGN KEY (E_ID, ClgID) REFERENCES Exam (E_ID, ClgID) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 
