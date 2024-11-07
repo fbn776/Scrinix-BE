@@ -39,6 +39,7 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL PRIVILEGES ON TABLES TO dbms
 
 ```postgresql
 GRANT USAGE, SELECT ON SEQUENCE exam_e_id_seq TO dbms_user;
+GRANT USAGE, SELECT ON SEQUENCE files_file_id_seq TO dbms_user;
 ```
 
 
