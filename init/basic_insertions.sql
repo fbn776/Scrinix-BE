@@ -93,16 +93,16 @@ CREATE TABLE IF NOT EXISTS Faculty
  */
 
 INSERT INTO Faculty VALUES
-                        ('F001', 'KTE', 'John Smith', 'john.smith@example.edu', '1234567890'),
-                        ('F002', 'KTE', 'Michael Johnson', 'michael.johnson@example.edu', '2345678901'),
-                        ('F003', 'KTE', 'Jessica Brown', 'jessica.brown@example.edu', '3456789012'),
-                        ('F004', 'KTE', 'Daniel Miller', 'daniel.miller@example.edu', '4567890123'),
-                        ('F005', 'KTE', 'Emily Wilson', 'emily.wilson@example.edu', '5678901234'),
-                        ('F006', 'KTE', 'Sarah Moore', 'sarah.moore@example.edu', '6789012345'),
-                        ('F007', 'KTE', 'James Taylor', 'james.taylor@example.edu', '7890123456'),
-                        ('F008', 'KTE', 'Elizabeth Anderson', 'elizabeth.anderson@example.edu', '8901234567'),
-                        ('F009', 'KTE', 'David Thomas', 'david.thomas@example.edu', '9012345678'),
-                        ('F010', 'KTE', 'Jennifer Martinez', 'jennifer.martinez@example.edu', '0123456789');
+                        ('F001', 'KTE', 'John Smith', 'john.smith@example.edu', '1234567890', 'password'),
+                        ('F002', 'KTE', 'Michael Johnson', 'michael.johnson@example.edu', '2345678901', 'password'),
+                        ('F003', 'KTE', 'Jessica Brown', 'jessica.brown@example.edu', '3456789012', 'password'),
+                        ('F004', 'KTE', 'Daniel Miller', 'daniel.miller@example.edu', '4567890123', 'password'),
+                        ('F005', 'KTE', 'Emily Wilson', 'emily.wilson@example.edu', '5678901234', 'password'),
+                        ('F006', 'KTE', 'Sarah Moore', 'sarah.moore@example.edu', '6789012345', 'password'),
+                        ('F007', 'KTE', 'James Taylor', 'james.taylor@example.edu', '7890123456','password'),
+                        ('F008', 'KTE', 'Elizabeth Anderson', 'elizabeth.anderson@example.edu', '8901234567', 'password'),
+                        ('F009', 'KTE', 'David Thomas', 'david.thomas@example.edu', '9012345678', 'password'),
+                        ('F010', 'KTE', 'Jennifer Martinez', 'jennifer.martinez@example.edu', '0123456789', 'password');
 
 
 -- Semester 1

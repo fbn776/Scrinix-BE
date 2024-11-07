@@ -74,4 +74,59 @@ coordinatorRouter.post('/exam', async (req, res) => {
     }
 });
 
+/** Create a new question paper */
+coordinatorRouter.post('/assign-faculty', async (req, res) => {
+    Logger.info('Creating question paper');
+    const {
+        f_id,
+        e_id,
+        clgID,
+        course_id,
+        scheme,
+        due_date,
+    } = req.body;
+
+    Logger.info(
+        f_id,
+        e_id,
+        clgID,
+        course_id,
+        scheme,
+        due_date
+    );
+
+    if (!f_id || !e_id || !clgID || !course_id || !scheme || !due_date) {
+        return res.status(HTTP_status.BAD_REQUEST).json({
+            message: 'Missing required fields'
+        });
+    }
+
+    try {
+        await pgPool.query('BEGIN');
+
+        await pgPool.query('INSERT INTO QuestionPaper (f_id, e_id, clgID, course_id, scheme, due_date) VALUES ($1, $2, $3, $4, $5, $6)',
+            [f_id, e_id, clgID, course_id, scheme, due_date]);
+        /*
+        clgid, e_id, scheme, semester
+         */
+
+        await pgPool.query('COMMIT');
+
+        return res.json({
+            message: 'Question paper created successfully'
+        });
+    } catch (e: any) {
+        Logger.error('ERROR in creating qp: ', e);
+        if (e.code === '23505') {
+            return res.status(HTTP_status.CONFLICT).json({
+                message: 'Question paper already exists'
+            });
+        }
+
+        return res.status(HTTP_status.BAD_REQUEST).json({
+            message: `ERROR: ${e}`
+        });
+    }
+});
+
 export default coordinatorRouter;

@@ -18,14 +18,15 @@ CREATE TABLE IF NOT EXISTS CollegeAdmins
 
 CREATE TABLE IF NOT EXISTS Faculty
 (
-    F_ID  VARCHAR(10),
-    ClgID VARCHAR(10),
-    Name  VARCHAR(100) NOT NULL,
-    Email VARCHAR(100) NOT NULL,
-    Phone VARCHAR(10)  NOT NULL,
+    F_ID            VARCHAR(10),
+    ClgID           VARCHAR(10),
+    Name            VARCHAR(100) NOT NULL,
+    Email           VARCHAR(100) NOT NULL,
+    Phone           VARCHAR(10)  NOT NULL,
+    hashed_password VARCHAR(100) NOT NULL,
 
     PRIMARY KEY (F_ID, ClgID),
-    FOREIGN KEY (ClgID) REFERENCES College (ID) ON UPDATE CASCADE
+    FOREIGN KEY (ClgID) REFERENCES College (ID) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS Files
@@ -83,7 +84,7 @@ CREATE TABLE IF NOT EXISTS Course
     PRIMARY KEY (scheme, course_id)
 );
 
-CREATE TYPE StatusTypes AS ENUM ('pending', 'success', 'scrutiny');
+CREATE TYPE StatusTypes AS ENUM ('pending', 'success', 'under scrutiny', 'scrutinized', 'submitted');
 
 CREATE TABLE IF NOT EXISTS QuestionPaper
 (
