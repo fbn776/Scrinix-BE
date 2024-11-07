@@ -118,12 +118,7 @@ coordinatorRouter.post('/exam', upload.fields([
         await pgPool.query('ROLLBACK');
 
         return res.status(HTTP_status.BAD_REQUEST).json({
-            message: `
-        ERROR: $
-        {
-            e
-        }
-        `
+            message: e.message
         })
     }
 });

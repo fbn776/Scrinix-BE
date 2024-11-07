@@ -1,7 +1,8 @@
-import {Router} from "express";
+import {Request, Response, Router} from "express";
 import HTTP_status from "../../lib/HTTP_status";
 import pgPool from "../../config/db";
 import Logger from "../../lib/Logger";
+import multer from "multer";
 
 const examRouter = Router();
 
@@ -59,6 +60,7 @@ examRouter.post('/has-exam', async (req, res) => {
 
 /**
  * Get all exams with the exam id and college id
+ * /exam?e_id=?&clg_id=?
  */
 examRouter.get('/exam', async (req, res) => {
     const {e_id, clg_id} = req.query;
@@ -101,13 +103,13 @@ examRouter.get('/exam', async (req, res) => {
  * Get all courses associated with the exam (older version)
  *```psql
  SELECT C.*
-    FROM exam E
-    JOIN examfor EF
-        ON E.clgid = EF.clgid AND E.e_id = EF.e_id
-    JOIN course C
-        ON EF.semester = C.semester AND EF.scheme = C.scheme
-    WHERE E.clgid = $1
-        AND E.e_id = $2
+ FROM exam E
+ JOIN examfor EF
+ ON E.clgid = EF.clgid AND E.e_id = EF.e_id
+ JOIN course C
+ ON EF.semester = C.semester AND EF.scheme = C.scheme
+ WHERE E.clgid = $1
+ AND E.e_id = $2
  ```
  */
 examRouter.post('/get-available-subjects', async (req, res) => {
@@ -160,7 +162,7 @@ examRouter.post('/get-qp', async (req, res) => {
 
     Logger.info("Get all question paper with exam id = ", e_id, " and clg id = ", clgid);
 
-    if(!e_id || !clgid) {
+    if (!e_id || !clgid) {
         return res.status(HTTP_status.BAD_REQUEST).json({
             message: 'e_id and clg_id as body are required'
         });
@@ -200,5 +202,132 @@ examRouter.post('/get-qp', async (req, res) => {
     }
 });
 
+/**
+ * Deletes the seating arrangement for the exam with the given exam id and college id
+ */
+examRouter.delete('/delete/seating/:clgid/:e_id', async (req, res) => {
+    const {clgid, e_id} = req.params;
+
+    Logger.info("Deleting seating arrangement for exam with clgid = ", clgid, " and e_id = ", e_id);
+
+    if (!clgid || !e_id) {
+        return res.status(HTTP_status.BAD_REQUEST).json({
+            message: 'clgid and e_id as params are required'
+        });
+    }
+
+    try {
+        await pgPool.query(`DELETE
+                            FROM files f
+                            WHERE f.file_id = (SELECT seating_arrangement
+                                               FROM exam
+                                               WHERE clgid = $1
+                                                 AND e_id = $2)`, [clgid, e_id]);
+
+        return res.status(HTTP_status.OK).json({
+            message: 'Seating arrangement deleted'
+        });
+    } catch (e) {
+        Logger.error("Error: ", e);
+
+        return res.status(HTTP_status.BAD_REQUEST).json({
+            message: "An error happened"
+        })
+    }
+});
+
+/**
+ * Deletes the timetable for the exam with the given exam id and college id
+ */
+examRouter.delete('/delete/timetable/:clgid/:e_id', async (req, res) => {
+    const {clgid, e_id} = req.params;
+
+    Logger.info("Deleting time table for exam with clgid = ", clgid, " and e_id = ", e_id);
+
+    if (!clgid || !e_id) {
+        return res.status(HTTP_status.BAD_REQUEST).json({
+            message: 'clgid and e_id as params are required'
+        });
+    }
+
+    try {
+        await pgPool.query(`DELETE
+                            FROM files f
+                            WHERE f.file_id = (SELECT time_table
+                                               FROM exam
+                                               WHERE clgid = $1
+                                                 AND e_id = $2)`, [clgid, e_id]);
+
+        return res.status(HTTP_status.OK).json({
+            message: 'Time table deleted'
+        });
+    } catch (e) {
+        Logger.error("Error: ", e);
+
+        return res.status(HTTP_status.BAD_REQUEST).json({
+            message: "An error happened"
+        })
+    }
+});
+
+async function uploadFile(req: Request, res: Response, type: 'seating' | 'timetable') {
+    const {e_id, clgid} = req.body;
+    const file = req.file;
+
+    console.log(type, e_id, clgid, file);
+
+    if (!e_id || !clgid || !file) {
+        return res.status(HTTP_status.BAD_REQUEST).json({
+            message: 'e_id, clgid and file as body are required'
+        });
+    }
+
+    try {
+        await pgPool.query('BEGIN');
+        const fileQuery = `
+            INSERT INTO Files (file_data, file_name)
+            VALUES ($1, $2)
+            RETURNING file_id, created_at;
+        `;
+        const fileResult = await pgPool.query(fileQuery, [file.buffer, file.originalname]);
+
+        await pgPool.query(type === 'seating' ?
+                'UPDATE Exam SET seating_arrangement = $1 WHERE e_id = $2 AND clgid = $3' :
+                'UPDATE Exam SET time_table = $1 WHERE e_id = $2 AND clgid = $3',
+            [fileResult.rows[0].file_id, e_id, clgid]);
+
+        await pgPool.query('COMMIT');
+
+        return res.json({
+           message: `Successfully uploaded ${type}`
+        });
+    } catch (e) {
+        Logger.error("Error: ", e);
+
+        return res.status(HTTP_status.BAD_REQUEST).json({
+            message: "An error happened"
+        })
+    }
+
+}
+
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {fileSize: 10 * 1024 * 1024}
+});
+
+/**
+ * Uploads the seating arrangement for the exam with the given exam id and college id
+ */
+examRouter.post('/upload/seating', upload.single('file'), async (req, res) => {
+    await uploadFile(req, res, 'seating');
+});
+
+/**
+ * Uploads the timetable for the exam with the given exam id and college id
+ */
+examRouter.post('/upload/timetable', upload.single('file'), async (req, res) => {
+    await uploadFile(req, res, 'timetable');
+})
 
 export default examRouter;
