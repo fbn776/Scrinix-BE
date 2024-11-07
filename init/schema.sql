@@ -54,8 +54,8 @@ CREATE TABLE IF NOT EXISTS Exam
     PRIMARY KEY (E_ID, ClgID),
 
     FOREIGN KEY (ClgID) REFERENCES College (ID) ON UPDATE CASCADE,
-    FOREIGN KEY (seating_arrangement) REFERENCES Files (file_id) ON UPDATE CASCADE,
-    FOREIGN KEY (time_table) REFERENCES Files (file_id) ON UPDATE CASCADE
+    FOREIGN KEY (seating_arrangement) REFERENCES Files (file_id) ON UPDATE CASCADE ON DELETE SET NULL ,
+    FOREIGN KEY (time_table) REFERENCES Files (file_id) ON UPDATE CASCADE ON DELETE SET NULL
 );
 
 /**
@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS QuestionPaper
     PRIMARY KEY (scheme, course_id, e_id, clgID),
 
     FOREIGN KEY (f_id, clgID) REFERENCES Faculty (F_ID, ClgID) ON UPDATE CASCADE,
-    FOREIGN KEY (file_id) REFERENCES Files (file_id) ON UPDATE CASCADE,
+    FOREIGN KEY (file_id) REFERENCES Files (file_id) ON UPDATE CASCADE ON DELETE SET NULL,
     FOREIGN KEY (e_id, clgID) REFERENCES Exam (E_ID, ClgID) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (course_id, scheme) REFERENCES Course (course_id, scheme) ON UPDATE CASCADE
 );
