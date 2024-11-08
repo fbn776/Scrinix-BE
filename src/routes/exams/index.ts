@@ -11,6 +11,7 @@ const getAllExamQuery = `SELECT E.*,
                          FROM Exam E
                                   JOIN
                               ExamFor EF ON E.E_ID = EF.E_ID AND E.ClgID = EF.ClgID
+                         WHERE E.clgid = $1
                          GROUP BY E.E_ID, E.ClgID, E.created_time
                          ORDER BY E.created_time DESC;
 `;
@@ -18,18 +19,23 @@ const getAllExamQuery = `SELECT E.*,
 /**
  * Gets all the exams;
  */
-examRouter.get('/all', async (req, res) => {
-    try {
-        Logger.info('STARTED');
+examRouter.get('/all/:clgid', async (req, res) => {
+    const {clgid} = req.params;
 
-        const result = await pgPool.query(getAllExamQuery);
+    if(!clgid)
+        return res.status(HTTP_status.BAD_REQUEST).json({
+            message: 'clgid as params is required'
+        });
+
+    try {
+        const result = await pgPool.query(getAllExamQuery, [clgid]);
 
         return res.status(HTTP_status.OK).json({
             data: result.rows
         });
 
     } catch (e: any) {
-        Logger.error('DB insertion failed: ', e);
+        Logger.error(e);
 
         return res.status(HTTP_status.BAD_REQUEST).json({
             message: `ERROR: ${e}`
