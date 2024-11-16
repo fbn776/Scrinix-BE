@@ -104,6 +104,8 @@ INSERT INTO Faculty VALUES
                         ('F009', 'KTE', 'David Thomas', 'david.thomas@example.edu', '9012345678', 'password'),
                         ('F010', 'KTE', 'Jennifer Martinez', 'jennifer.martinez@example.edu', '0123456789', 'password');
 
+INSERT INTO faculty VALUES
+                        ('F776', 'KTE', 'Febin Nelson', 'fbn776@gmail.com', '1234567890', 'password', TRUE);
 
 -- Semester 1
 INSERT INTO Teaches VALUES ('F001', 'KTE', 'MAT101', 2019);

@@ -2,7 +2,6 @@ import {Router} from "express";
 import Logger from "../../lib/Logger";
 import pgPool from "../../config/db";
 import HTTP_status from "../../lib/HTTP_status";
-import {verifyPassword} from "../../lib/hashPassword";
 
 const staffRouter = Router();
 
@@ -199,7 +198,8 @@ staffRouter.post('/login', async (req, res) => {
 
         if(isMatch) {
             return res.status(HTTP_status.OK).json({
-                message: 'Logged in'
+                message: 'Logged in',
+                data: faculty
             });
         } else
             return res.status(HTTP_status.UNAUTHORIZED).json({

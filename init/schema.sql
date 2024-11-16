@@ -20,10 +20,11 @@ CREATE TABLE IF NOT EXISTS Faculty
 (
     F_ID            VARCHAR(10),
     ClgID           VARCHAR(10),
-    Name            VARCHAR(100) NOT NULL,
-    Email           VARCHAR(100) NOT NULL,
-    Phone           VARCHAR(10)  NOT NULL,
-    hashed_password VARCHAR(100) NOT NULL,
+    Name            VARCHAR(100)          NOT NULL,
+    Email           VARCHAR(100)          NOT NULL,
+    Phone           VARCHAR(10)           NOT NULL,
+    hashed_password VARCHAR(100)          NOT NULL,
+    is_coordinator  BOOLEAN DEFAULT FALSE NOT NULL,
 
     PRIMARY KEY (F_ID, ClgID),
     FOREIGN KEY (ClgID) REFERENCES College (ID) ON UPDATE CASCADE ON DELETE CASCADE
@@ -54,7 +55,7 @@ CREATE TABLE IF NOT EXISTS Exam
     PRIMARY KEY (E_ID, ClgID),
 
     FOREIGN KEY (ClgID) REFERENCES College (ID) ON UPDATE CASCADE,
-    FOREIGN KEY (seating_arrangement) REFERENCES Files (file_id) ON UPDATE CASCADE ON DELETE SET NULL ,
+    FOREIGN KEY (seating_arrangement) REFERENCES Files (file_id) ON UPDATE CASCADE ON DELETE SET NULL,
     FOREIGN KEY (time_table) REFERENCES Files (file_id) ON UPDATE CASCADE ON DELETE SET NULL
 );
 
@@ -120,16 +121,6 @@ CREATE TABLE IF NOT EXISTS Teaches
     FOREIGN KEY (course_ID, scheme) REFERENCES Course (course_id, scheme) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS Coordinators
-(
-    f_ID    VARCHAR(10),
-    clg_ID  VARCHAR(10),
-    exam_ID INT,
-
-    FOREIGN KEY (f_ID, clg_ID) REFERENCES Faculty (F_ID, ClgID) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (exam_ID, clg_ID) REFERENCES Exam (E_ID, ClgID) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
 CREATE TABLE IF NOT EXISTS Scrutinizes
 (
     f_ID           VARCHAR(10),
@@ -137,12 +128,15 @@ CREATE TABLE IF NOT EXISTS Scrutinizes
     course_ID      VARCHAR(10),
     scheme         INT,
     exam_ID        INT,
-
+    file_id        INT,
     status         StatusTypes DEFAULT 'pending' NOT NULL,
-    created_date   DATE        DEFAULT CURRENT_DATE,
     due_date       DATE                          NOT NULL,
     submitted_date DATE,
+    created_at     TIMESTAMP   DEFAULT CURRENT_TIMESTAMP,
 
+    PRIMARY KEY (f_ID, clg_ID, course_ID, scheme, exam_ID),
+
+    FOREIGN KEY (file_id) REFERENCES Files (file_id) ON DELETE SET NULL ON UPDATE CASCADE,
     FOREIGN KEY (f_ID, clg_ID) REFERENCES Faculty (F_ID, ClgID) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (course_ID, scheme) REFERENCES Course (course_id, scheme) ON DELETE CASCADE ON UPDATE CASCADE,
     FOREIGN KEY (exam_ID, clg_ID) REFERENCES Exam (E_ID, ClgID) ON DELETE CASCADE ON UPDATE CASCADE

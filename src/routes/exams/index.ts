@@ -22,7 +22,7 @@ const getAllExamQuery = `SELECT E.*,
 examRouter.get('/all/:clgid', async (req, res) => {
     const {clgid} = req.params;
 
-    if(!clgid)
+    if (!clgid)
         return res.status(HTTP_status.BAD_REQUEST).json({
             message: 'clgid as params is required'
         });
@@ -305,7 +305,7 @@ async function uploadFile(req: Request, res: Response, type: 'seating' | 'timeta
         await pgPool.query('COMMIT');
 
         return res.json({
-           message: `Successfully uploaded ${type}`
+            message: `Successfully uploaded ${type}`
         });
     } catch (e) {
         Logger.error("Error: ", e);
@@ -335,5 +335,86 @@ examRouter.post('/upload/seating', upload.single('file'), async (req, res) => {
 examRouter.post('/upload/timetable', upload.single('file'), async (req, res) => {
     await uploadFile(req, res, 'timetable');
 })
+
+examRouter.post('/qp/upload', upload.single('file'), async (req, res) => {
+    const {scheme, course_id, e_id, clgid} = req.body;
+    const file = req.file;
+
+    console.log(scheme, course_id, e_id, clgid);
+
+    if (!scheme || !course_id || !e_id || !clgid || !file) {
+        return res.status(HTTP_status.BAD_REQUEST).json({
+            message: 'scheme, course_id, e_id, clgID and file are required'
+        });
+    }
+
+    try {
+        pgPool.query('BEGIN');
+
+        const fileQuery = `
+            INSERT INTO Files (file_data, file_name)
+            VALUES ($1, $2)
+            RETURNING file_id, created_at;
+        `;
+        const fileResult = await pgPool.query(fileQuery, [file.buffer, file.originalname]);
+
+        const result = await pgPool.query(
+            `UPDATE questionpaper
+             SET file_id        = $1,
+                 status         = 'submitted',
+                 submitted_date = NOW()
+             WHERE clgid = $2
+               AND e_id = $3
+               AND course_id = $4
+               AND scheme = $5`, [fileResult.rows[0].file_id, clgid, e_id, course_id, scheme]);
+
+        await pgPool.query('COMMIT');
+
+        return res.status(HTTP_status.OK).json({
+            message: 'Question paper uploaded',
+            data: {
+                file_id: fileResult.rows[0].file_id,
+                created_at: fileResult.rows[0].created_at
+            }
+        });
+    } catch (e) {
+        console.error(e);
+        return res.status(HTTP_status.BAD_REQUEST).json({
+            message: 'An error happened'
+        });
+    }
+
+});
+
+
+examRouter.post('/assign-scrutiny', async (req, res) => {
+    // f_ID, clg_ID, course_ID, scheme, exam_ID
+    const {f_id, clgid, course_id, scheme, eid, due_date} = req.body;
+
+    if(!f_id || !clgid || !course_id || !scheme || !eid || !due_date) {
+        return res.status(HTTP_status.BAD_REQUEST).json({
+            message: 'f_id, clgid, course_id, scheme and eid are required'
+        });
+    }
+
+    try {
+        const result = await pgPool.query(`
+            INSERT INTO Scrutinizes (f_id, clg_id, course_id, scheme, exam_id, due_date)
+            VALUES ($1, $2, $3, $4, $5, $6)
+            RETURNING *;
+        `, [f_id, clgid, course_id, scheme, eid, due_date]);
+
+        return res.status(HTTP_status.OK).json({
+            message: 'Faculty assigned for scrutiny',
+            data: result.rows[0]
+        });
+    } catch (e) {
+        console.error(e);
+        return res.status(HTTP_status.BAD_REQUEST).json({
+            message: 'An error happened'
+        });
+    }
+
+});
 
 export default examRouter;
