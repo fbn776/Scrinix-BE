@@ -183,4 +183,37 @@ coordinatorRouter.post('/assign-faculty', async (req, res) => {
     }
 });
 
+/*
+    f_ID           VARCHAR(10),
+    clg_ID         VARCHAR(10),
+    course_ID      VARCHAR(10),
+    scheme         INT,
+    exam_ID        INT,
+    due_date       DATE                          NOT NULL,
+
+ */
+coordinatorRouter.post('/scrutiny/assign-faculty', async (req, res) => {
+   const {f_id, clg_id, course_id, scheme, exam_id, due_date} = req.body;
+
+    if (!f_id || !clg_id || !course_id || !scheme || !exam_id || !due_date) {
+         return res.status(HTTP_status.BAD_REQUEST).json({
+              message: 'Missing required fields'
+         });
+    }
+
+    try {
+        await pgPool.query('INSERT INTO Scrutinizes (f_id, clg_id, course_id, scheme, exam_id, due_date) VALUES ($1, $2, $3, $4, $5, $6)', [f_id, clg_id, course_id, scheme, exam_id, due_date]);
+        Logger.success('Faculty assigned for scrutiny; with details = ', f_id, clg_id, course_id, scheme, exam_id, due_date);
+        return res.json({
+            message: 'Faculty assigned successfully',
+        });
+    } catch (e) {
+        Logger.error(e);
+        return res.status(HTTP_status.INTERNAL_SERVER_ERROR).json({
+            message: 'Internal server error'
+        });
+    }
+
+});
+
 export default coordinatorRouter;
