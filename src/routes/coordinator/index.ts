@@ -153,16 +153,14 @@ coordinatorRouter.post('/assign-faculty', async (req, res) => {
     try {
         await pgPool.query('BEGIN');
 
-        await pgPool.query('INSERT INTO QuestionPaper (f_id, e_id, clgID, course_id, scheme, due_date) VALUES ($1, $2, $3, $4, $5, $6)',
+        const data = await pgPool.query('INSERT INTO QuestionPaper (f_id, e_id, clgID, course_id, scheme, due_date) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
             [f_id, e_id, clgID, course_id, scheme, due_date]);
-        /*
-        clgid, e_id, scheme, semester
-         */
 
         await pgPool.query('COMMIT');
 
         return res.json({
-            message: 'Question paper created successfully'
+            message: 'Question paper created successfully',
+            data: data.rows[0]
         });
     } catch (e: any) {
         Logger.error('ERROR in creating qp: ', e);
