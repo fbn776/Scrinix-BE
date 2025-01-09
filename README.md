@@ -4,16 +4,14 @@ This documentation outlines the key aspects, features, and structure of the back
 
 > **Note**: The application is not completed. Feel free to contribute or fork this project.
 
-
+## **Frontend Repository**
+The frontend repository can be found [here](https://github.com/fbn776/Scrinix-FE).
 
 ## **Tech Stack**
 - **Runtime**: Node.js
 - **Framework**: Express.js
 - **Database**: PostgreSQL
-- **ORM**: Sequelize (or Knex.js if preferred)
-- **Authentication**: JWT (JSON Web Tokens)
-- **File Uploads**: Multer
-- **Real-time Updates**: Socket.io (Optional)
+- **File Uploads**: Multer (stored in postgres)
 
 ---
 
@@ -69,12 +67,6 @@ This documentation outlines the key aspects, features, and structure of the back
             └── staff/
                 └── index.ts
 ```
-
-## Tech Stack
-
-- Node.js (runtime)
-- Express.js (webserver)
-- PostgreSQL (for database)
 
 ## Usage
 ### Development
