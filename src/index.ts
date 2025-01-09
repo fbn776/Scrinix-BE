@@ -7,6 +7,8 @@ import coordinatorRouter from "./routes/coordinator";
 import examRouter from "./routes/exams";
 import facultyRouter from "./routes/staff";
 import courseRouter from "./routes/course";
+import fileRouter from "./routes/file";
+import collegeRouter from "./routes/college";
 
 require('dotenv').config();
 
@@ -29,6 +31,10 @@ app.use('/exams', examRouter);
 app.use('/staff', facultyRouter);
 
 app.use('/course', courseRouter);
+
+app.use('/file', fileRouter);
+
+app.use('/college', collegeRouter);
 
 app.listen(PORT, async () => {
     try {

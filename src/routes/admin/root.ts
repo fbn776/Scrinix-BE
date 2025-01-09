@@ -12,6 +12,29 @@ import Logger from "../../lib/Logger";
  */
 const rootAdminRouter = Router();
 
+rootAdminRouter.post('/login', async (req, res) => {
+    const {username, password} = req.body;
+
+    if (!username || !password) {
+        return res.status(HTTP_status.BAD_REQUEST).json({
+            message: 'username and password are required fields'
+        });
+    }
+
+    if(username !== process.env.ADMIN_USER && password !== process.env.ADMIN_PASSWORD) {
+        return res.status(HTTP_status.UNAUTHORIZED).json({
+            message: 'Invalid username or password'
+        });
+    }
+
+    return res.json({
+        message: 'Login successful',
+        data: {
+            username
+        }
+    });
+});
+
 rootAdminRouter.get('/college', async (req: Request, res: Response) => {
     const body: {
         ID: string,

@@ -2,17 +2,46 @@ import {Router} from "express";
 import HTTP_status from "../../lib/HTTP_status";
 import pgPool from "../../config/db";
 import Logger from "../../lib/Logger";
+import multer from "multer";
+import {QueryResult} from "pg";
 
 const coordinatorRouter = Router();
 
-coordinatorRouter.post('/exam', async (req, res) => {
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {fileSize: 10 * 1024 * 1024}
+});
+
+interface FileFields {
+    timetable?: Express.Multer.File[];
+    seating?: Express.Multer.File[];
+}
+
+coordinatorRouter.post('/exam', upload.fields([
+    {name: 'timetable', maxCount: 1},
+    {name: 'seating', maxCount: 1}
+]), async (req, res) => {
     const body: {
         clgID: string,
         title: string,
-        sem_scheme: string[],
+        sem_scheme: string[] | string,
         start_date: string,
-        end_date: string
+        end_date: string,
     } = req.body;
+
+    /**The data is passed to the backend as a FormData and we cannot send and array (as sem_scheme is an array of string)
+     * So I joined the array with a '#' and now I am splitting it back to an array
+     */
+    body.sem_scheme = (body.sem_scheme as string).split('#');
+
+
+    const files = req.files as FileFields;
+    const examTimetable = files.timetable?.[0];
+    const examSeating = files.seating?.[0];
+
+    console.log(examSeating, examTimetable);
+
+    console.log("BODY:", body.clgID, body.title, body.sem_scheme, body.start_date, body.end_date);
 
     if (!body.clgID || !body.title || (body.sem_scheme || []).length === 0 || !body.start_date || !body.end_date) {
         return res.status(HTTP_status.BAD_REQUEST).json({
@@ -31,14 +60,32 @@ coordinatorRouter.post('/exam', async (req, res) => {
         Logger.info('STARTED');
         await pgPool.query('BEGIN');
 
+        const fileQuery = `
+            INSERT INTO Files (file_data, file_name)
+            VALUES ($1, $2)
+            RETURNING file_id, created_at;
+        `;
+
+        let timetableQueryResult: QueryResult<any> | null = null;
+        let seatingQueryResult: QueryResult<any> | null = null;
+
+        if (examTimetable)
+            timetableQueryResult = await pgPool.query(fileQuery, [examTimetable?.buffer, examTimetable?.originalname]);
+
+        if (examSeating)
+            seatingQueryResult = await pgPool.query(fileQuery, [examSeating?.buffer, examSeating?.originalname]);
+
+
         const result = await pgPool.query(
-            'INSERT INTO Exam (ClgID, title, start_date, end_date) VALUES ($1, $2, $3, $4) RETURNING E_ID, ClgID, created_time',
-            [body.clgID, body.title, body.start_date, body.end_date]
+            'INSERT INTO Exam (ClgID, title, start_date, end_date, time_table, seating_arrangement) VALUES ($1, $2, $3, $4, $5, $6) RETURNING E_ID, ClgID, created_time, seating_arrangement, time_table',
+            [body.clgID, body.title, body.start_date, body.end_date, timetableQueryResult?.rows[0].file_id, seatingQueryResult?.rows[0].file_id]
         );
 
         const e_id: number = result.rows[0].e_id,
             clg_id: string = result.rows[0].clgid,
-            created_time: string = result.rows[0].created_time;
+            created_time: string = result.rows[0].created_time,
+            seating_arrangement: number | null = result.rows[0].seating_arrangement,
+            time_table: number | null = result.rows[0].time_table;
 
         Logger.info('Exam added to DB with ID:', e_id, 'and clg_id:', clg_id, ' at:', created_time);
 
@@ -61,7 +108,9 @@ coordinatorRouter.post('/exam', async (req, res) => {
                 start_date: body.start_date,
                 end_date: body.end_date,
                 sem_scheme: body.sem_scheme,
-                created_time
+                created_time,
+                seating_arrangement,
+                time_table
             }
         });
     } catch (e: any) {
@@ -69,9 +118,100 @@ coordinatorRouter.post('/exam', async (req, res) => {
         await pgPool.query('ROLLBACK');
 
         return res.status(HTTP_status.BAD_REQUEST).json({
-            message: `ERROR: ${e}`
+            message: e.message
         })
     }
+});
+
+/** Create a new question paper */
+coordinatorRouter.post('/assign-faculty', async (req, res) => {
+    Logger.info('Creating question paper');
+    const {
+        f_id,
+        e_id,
+        clgID,
+        course_id,
+        scheme,
+        due_date,
+    } = req.body;
+
+    Logger.info(
+        f_id,
+        e_id,
+        clgID,
+        course_id,
+        scheme,
+        due_date
+    );
+
+    if (!f_id || !e_id || !clgID || !course_id || !scheme || !due_date) {
+        return res.status(HTTP_status.BAD_REQUEST).json({
+            message: 'Missing required fields'
+        });
+    }
+
+    try {
+        await pgPool.query('BEGIN');
+
+        const data = await pgPool.query('INSERT INTO QuestionPaper (f_id, e_id, clgID, course_id, scheme, due_date) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+            [f_id, e_id, clgID, course_id, scheme, due_date]);
+
+        await pgPool.query('COMMIT');
+
+        return res.json({
+            message: 'Question paper created successfully',
+            data: data.rows[0]
+        });
+    } catch (e: any) {
+        Logger.error('ERROR in creating qp: ', e);
+        if (e.code === '23505') {
+            return res.status(HTTP_status.CONFLICT).json({
+                message: 'Question paper already exists'
+            });
+        }
+
+        return res.status(HTTP_status.BAD_REQUEST).json({
+            message: `
+        ERROR: $
+        {
+            e
+        }
+        `
+        });
+    }
+});
+
+/*
+    f_ID           VARCHAR(10),
+    clg_ID         VARCHAR(10),
+    course_ID      VARCHAR(10),
+    scheme         INT,
+    exam_ID        INT,
+    due_date       DATE                          NOT NULL,
+
+ */
+coordinatorRouter.post('/scrutiny/assign-faculty', async (req, res) => {
+   const {f_id, clg_id, course_id, scheme, exam_id, due_date} = req.body;
+
+    if (!f_id || !clg_id || !course_id || !scheme || !exam_id || !due_date) {
+         return res.status(HTTP_status.BAD_REQUEST).json({
+              message: 'Missing required fields'
+         });
+    }
+
+    try {
+        await pgPool.query('INSERT INTO Scrutinizes (f_id, clg_id, course_id, scheme, exam_id, due_date) VALUES ($1, $2, $3, $4, $5, $6)', [f_id, clg_id, course_id, scheme, exam_id, due_date]);
+        Logger.success('Faculty assigned for scrutiny; with details = ', f_id, clg_id, course_id, scheme, exam_id, due_date);
+        return res.json({
+            message: 'Faculty assigned successfully',
+        });
+    } catch (e) {
+        Logger.error(e);
+        return res.status(HTTP_status.INTERNAL_SERVER_ERROR).json({
+            message: 'Internal server error'
+        });
+    }
+
 });
 
 export default coordinatorRouter;

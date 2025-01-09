@@ -1,8 +1,74 @@
 # Scrinix-backend
+Welcome to the backend of Scrinix, a platform designed to streamline the moderation of internal exams.
+This documentation outlines the key aspects, features, and structure of the backend system, built to provide a secure and efficient foundation for the application.
 
+> **Note**: The application is not completed. Feel free to contribute or fork this project.
+
+## **Frontend Repository**
+The frontend repository can be found [here](https://github.com/fbn776/Scrinix-FE).
+
+## **Tech Stack**
+- **Runtime**: Node.js
+- **Framework**: Express.js
+- **Database**: PostgreSQL
+- **File Uploads**: Multer (stored in postgres)
+
+---
+
+## **Project Structure**
+```plaintext
+└── Scrinix-BE/
+    ├── README.md
+    ├── package.json
+    ├── tsconfig.json
+    ├── .swcrc
+    ├── docs/
+    │   ├── README.md
+    │   ├── DB.md
+    │   ├── File structure.md
+    │   ├── Private.md
+    │   ├── TODO.md
+    │   └── assets/
+    ├── init/
+    │   ├── basic_insertions.sql
+    │   ├── cleanup.sql
+    │   └── schema.sql
+    └── src/
+        ├── index.ts
+        ├── config/
+        │   └── db.ts
+        ├── controllers/
+        │   └── admin/
+        │       └── root.ts
+        ├── lib/
+        │   ├── ErrorHandling.ts
+        │   ├── HTTP_status.ts
+        │   ├── Logger.ts
+        │   ├── hashPassword.ts
+        │   └── utils.ts
+        ├── models/
+        │   ├── type.d.ts
+        │   ├── college/
+        │   │   └── model.ts
+        │   └── faculty/
+        │       └── model.ts
+        └── routes/
+            ├── swagger.ts
+            ├── admin/
+            │   ├── clgAdmin.ts
+            │   ├── index.ts
+            │   └── root.ts
+            ├── coordinator/
+            │   └── index.ts
+            ├── course/
+            │   └── index.ts
+            ├── exams/
+            │   └── index.ts
+            └── staff/
+                └── index.ts
+```
 
 ## Usage
-
 ### Development
 
 1. Clone the repository
